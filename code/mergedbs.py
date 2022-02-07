@@ -125,13 +125,19 @@ def closedbs():
 def updateLabelMapping(src_name, rows):
     
     out_rows = []
+    
     for row in rows:
-        
+            
         r = list(row)
-        image_areas = json.loads(r[8])
-        for ia in image_areas:
-            ia['lblid'] = dest_label_map[src_name][int(ia['lblid'])]
-        r[8] = json.dumps(image_areas)
+
+        try:
+            image_areas = json.loads(r[8])
+            for ia in image_areas:
+                ia['lblid'] = dest_label_map[src_name][int(ia['lblid'])]
+            r[8] = json.dumps(image_areas)
+        except:
+            print("** An error was encountered mapping labels for source [{}] in row [{}]. Please verify the integrity of merge file/data.".format(src_name, r))
+            sys.exit(-1)
 
         out_rows.append(tuple(r))
     
