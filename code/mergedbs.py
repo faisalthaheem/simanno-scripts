@@ -17,23 +17,6 @@ ap.add_argument("-c", "--configfile", required=True,
 
 args = vars(ap.parse_args())
 
-#create logger
-logger = logging.getLogger('mergedbs')
-logger.setLevel(logging.DEBUG)
-# create file handler which logs even debug messages
-fh = logging.FileHandler('mergedbs.log')
-fh.setLevel(logging.DEBUG)
-# create console handler with a higher log level
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-# create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-ch.setFormatter(formatter)
-# add the handlers to the logger
-logger.addHandler(fh)
-logger.addHandler(ch)
-
 db_dest = {}
 db_src = {}
 
@@ -58,15 +41,15 @@ def removeDbIfExists(path):
 
 def loadsqlitedbs():
     
-    logger.info("Opening sqlite dbs")
+    print("Opening sqlite dbs")
 
-    logger.info("Opening database [{}]".format(config['dest']['train_db']))
+    print("Opening database [{}]".format(config['dest']['train_db']))
     removeDbIfExists(config['dest']['train_db'])
     db_dest['train_db_conn'] = sqlite3.connect(config['dest']['train_db'])
     db_dest['train_db_cur'] = db_dest['train_db_conn'].cursor()
     initDb(db_dest['train_db_conn'])
 
-    logger.info("Opening database [{}]".format(config['dest']['val_db']))
+    print("Opening database [{}]".format(config['dest']['val_db']))
     removeDbIfExists(config['dest']['val_db'])
     db_dest['val_db_conn'] = sqlite3.connect(config['dest']['val_db'])
     db_dest['val_db_cur'] = db_dest['val_db_conn'].cursor()
@@ -80,7 +63,7 @@ def loadsqlitedbs():
         train_path = src[src_name]['train_path']
         val_path = src[src_name]['val_path']
 
-        logger.info("Opening database [{}]".format(src_name))
+        print("Opening database [{}]".format(src_name))
 
         #ensure paths exist
         if False == os.path.exists(train_db):
@@ -112,11 +95,11 @@ def loadsqlitedbs():
         db_src[src_name]['val_db_conn'] = sqlite3.connect(val_db)
         db_src[src_name]['val_db_cur'] = db_src[src_name]['val_db_conn'].cursor()
         
-    logger.info("dbs opened")
+    print("dbs opened")
 
 def closedbs():
 
-    logger.info("Closing dbs")
+    print("Closing dbs")
 
     if db_dest['train_db_cur'] is not None:
         db_dest['train_db_cur'].close()
@@ -137,7 +120,7 @@ def closedbs():
         v['val_db_conn'].close()
 
 
-    logger.info("DBs closed")
+    print("DBs closed")
 
 def updateLabelMapping(src_name, rows):
     
@@ -168,7 +151,7 @@ def process(dest_cur, src_cur, src_name):
         dest_cur.executemany(insQuery, rows)
                 
     except:
-        logger.error(traceback.format_exc())
+        print(traceback.format_exc())
 
 time_start = time.time()
 
@@ -189,4 +172,4 @@ closedbs()
 
 time_end = time.time()
 
-logger.info("Took [{}] s to process request".format(time_end-time_start))
+print("Took [{}] s to process request".format(time_end-time_start))
